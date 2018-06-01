@@ -25,6 +25,8 @@ static void ev_handler(struct mg_connection* const nc, int ev, void* p, void* co
 		if (url == login_url)
 			login_protocol_clbk(netmsg);
 
+		mbuf_remove(&nc->recv_mbuf, nc->recv_mbuf.len);
+
 		break;
 	}
 	
@@ -57,6 +59,11 @@ void connection_term(void)
 void connection_poll(int ms)
 {
 	mg_mgr_poll(&mgr, ms);
+}
+
+void connection_send(void* const conn_info, const uint8_t* const data, const uint16_t len)
+{
+	mg_send(conn_info, data, len);
 }
 
 void connection_get_ip_addr(void* conn_info, char buffer[COTS_IP_ADDR_BUFFER_SIZE])

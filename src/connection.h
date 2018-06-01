@@ -19,6 +19,7 @@ void connection_init(void(*clbk)(struct netmsg netmsg));
 void connection_term(void);
 void connection_poll(int ms);
 void connection_get_ip_addr(void* conn_info, char buffer[COTS_IP_ADDR_BUFFER_SIZE]);
+void connection_send(void* conn_info, const uint8_t* data, uint16_t len);
 
 
 #endif
