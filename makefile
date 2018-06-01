@@ -1,11 +1,15 @@
 
-INCLUDES=-Iextern/mongoose
-CFLAGS=-std=c11 -Wall -Wextra -O0 -g -fsanitize=address $(INCLUDES)
+INCLUDES=-Iextern -Iextern/mongoose 
+CFLAGS=-std=c11 -Wall -Wextra -O0 -g -fsanitize=address $(INCLUDES) \
+       -DLOG_USE_COLOR -DCOTS_DEBUG
 LDFLAGS=-lgmp
 
 SRC=$(wildcard src/*.c) \
-    $(wildcard extern/mongoose/*.c)
+    $(wildcard extern/mongoose/*.c) \
+    $(wildcard extern/logc/src/*.c)
+
 OBJS=$(SRC:.c=.o)
+
 
 all: cots
 

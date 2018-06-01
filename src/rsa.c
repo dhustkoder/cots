@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <gmp.h>
+#include "log.h"
 #include "rsa.h"
 
 const char* const p_str = "14299623962416399520070177382898895550795403345466153217470516082934737582776038882967213386204600674145392845853859217990626450972452084065728686565928113";
@@ -11,6 +12,7 @@ static mpz_t p, q, d, u, mod, dp, dq;
 
 void rsa_init(void)
 {
+	log_info("Initializing RSA...");
 	mpz_set_str(p, p_str, 10);
 	mpz_set_str(q, q_str, 10);
 	mpz_set_str(d, d_str, 10);

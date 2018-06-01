@@ -1,59 +1,50 @@
 #include <stdio.h>
 #include "mongoose.h"
-#include "netmsg.h"
+#include "log.h"
 #include "memory.h"
 #include "connection.h"
 
 
 static struct mg_mgr mgr;
 static const char* const url = "tcp://localhost:7171";
-void(*connection_clbk)(struct netmsg netmsg);
+void(*login_protocol_clbk)(struct netmsg netmsg);
 
-static void ev_handler(struct mg_connection* const nc, int ev, void* const p)
+static void login_protocol_ev_handler(struct mg_connection* const nc, int ev, void* const p)
 {
-	((void)nc);
 	((void)p);
 
 	switch (ev) {
 	case MG_EV_RECV: {
-		
-		printf("MG RECV EV\n");
-		
-		printf("\nFULL RECV MESSAGE: [\n");
-		
-		for (size_t i = 0; i < nc->recv_mbuf.len - 1; ++i) {
-			printf("$%.2x, \n", (uint8_t)nc->recv_mbuf.buf[i]);
-		}
-
-		printf("$%.2x\n]\n\n", nc->recv_mbuf.buf[nc->recv_mbuf.len - 1]);
-
+		log_info("MG RECV EV");
 		struct netmsg netmsg = {
 			.len = memread_u16(nc->recv_mbuf.buf),
-			.buf = (uint8_t*) nc->recv_mbuf.buf + 2
+			.buf = (uint8_t*) nc->recv_mbuf.buf + 2,
+			.conn_info = nc
 		};
 
-		connection_clbk(netmsg);
+		login_protocol_clbk(netmsg);
 
 		break;
 	}
 	
 	case MG_EV_SEND:
-		printf("MG SEND EV\n");
+		log_info("MG SEND EV");
 		break;
 
 	default:
-		printf("NS UNKNOWN\n");
+		log_warn("MG EV UNKNOWN %d", ev);
 		break;
 	}
 }
 
 
-bool connection_init(void(*clbk)(struct netmsg netmsg))
+void connection_init(void(*login_protocol_callback)(struct netmsg netmsg))
 {
+	log_info("Initializing Connection System...");
+	log_info("Connection LoginProtocol url: %s", url);
 	mg_mgr_init(&mgr, NULL);
-	mg_bind(&mgr, url, ev_handler);
-	connection_clbk = clbk;
-	return true;
+	mg_bind(&mgr, url, login_protocol_ev_handler);
+	login_protocol_clbk = login_protocol_callback;
 }
 
 void connection_term(void)
@@ -66,4 +57,10 @@ void connection_poll(int ms)
 	mg_mgr_poll(&mgr, ms);
 }
 
+void connection_get_ip_addr(void* conn_info, char buffer[COTS_IP_ADDR_BUFFER_SIZE])
+{
+	int sz = mg_conn_addr_to_str(conn_info, buffer, COTS_IP_ADDR_BUFFER_SIZE, MG_SOCK_STRINGIFY_IP|MG_SOCK_STRINGIFY_REMOTE);
+	log_info("written: %d", sz);
+	buffer[sz] = '\0';
+}
 

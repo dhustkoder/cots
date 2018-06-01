@@ -2,8 +2,8 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
+#include "log.h"
 #include "rsa.h"
-#include "netmsg.h"
 #include "memory.h"
 #include "connection.h"
 
@@ -17,27 +17,30 @@ static void enter_account(struct netmsg netmsg)
 	char account_password[account_password_len + 1];
 	memcpy(account_password, netmsg.buf + 40, account_password_len);
 	account_password[account_password_len] = '\0';
+	char ipaddr[COTS_IP_ADDR_BUFFER_SIZE];
+	connection_get_ip_addr(netmsg.conn_info, ipaddr);
 
-
-	printf("Account Number: %" PRIu32 "\n"
-	       "Account Password: %s\n",
-	        account_number, account_password);
+	log_debug("Login attempt from IP Address: %s\n"
+		      "Account Number: %" PRIu32 "\n"
+	          "Account Password: %s\n",
+	          ipaddr, account_number, account_password);
 
 }
 
-static void connection_callback(struct netmsg netmsg)
+static void login_protocol_handler(struct netmsg netmsg)
 {
 	const uint8_t opcode = memread_u8(netmsg.buf);
 
-	printf("Protocol Opcode: %" PRIu8 "\n"
-		   "Client OS: %" PRIu16 "\n"
-	       "Client Version: %" PRIu16 "\n",
-	       opcode,
-	       memread_u16(netmsg.buf + 1),
-	       memread_u16(netmsg.buf + 3));
+	log_debug("New Request From: \n"
+	          "Protocol Opcode: %" PRIu8 "\n"
+	          "Client OS: %" PRIu16 "\n"
+	          "Client Version: %" PRIu16 "\n",
+	          opcode,
+	          memread_u16(netmsg.buf + 1),
+	          memread_u16(netmsg.buf + 3));
 
 	switch (opcode) {
-	case NETMSG_OPCODE_ENTER_ACCOUNT:
+	case COTS_OPCODE_ENTER_ACCOUNT:
 		enter_account(netmsg);
 		break;
 	}
@@ -48,13 +51,17 @@ static void connection_callback(struct netmsg netmsg)
 
 int main(void) 
 {
+	log_init();
 	rsa_init();
-	connection_init(connection_callback);
+	connection_init(login_protocol_handler);
+	
 	for (;;) {
 		connection_poll(16000);
 	}
-	rsa_term();
+
 	connection_term();
+	rsa_term();
+	log_term();
 	return EXIT_SUCCESS;
 }
 
