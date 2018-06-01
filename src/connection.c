@@ -1,23 +1,23 @@
 #include <stdio.h>
-#include "fossa.h"
+#include "mongoose.h"
 #include "netmsg.h"
 #include "memory.h"
 #include "connection.h"
 
 
-static struct ns_mgr mgr;
+static struct mg_mgr mgr;
 static const char* const url = "tcp://localhost:7171";
 void(*connection_clbk)(struct netmsg netmsg);
 
-static void ev_handler(struct ns_connection* const nc, int ev, void* const p)
+static void ev_handler(struct mg_connection* const nc, int ev, void* const p)
 {
 	((void)nc);
 	((void)p);
 
 	switch (ev) {
-	case NS_RECV: {
+	case MG_EV_RECV: {
 		
-		printf("NS RECV EV\n");
+		printf("MG RECV EV\n");
 		
 		printf("\nFULL RECV MESSAGE: [\n");
 		
@@ -37,8 +37,8 @@ static void ev_handler(struct ns_connection* const nc, int ev, void* const p)
 		break;
 	}
 	
-	case NS_SEND:
-		printf("NS SEND EV\n");
+	case MG_EV_SEND:
+		printf("MG SEND EV\n");
 		break;
 
 	default:
@@ -50,20 +50,20 @@ static void ev_handler(struct ns_connection* const nc, int ev, void* const p)
 
 bool connection_init(void(*clbk)(struct netmsg netmsg))
 {
-	ns_mgr_init(&mgr, NULL);
-	ns_bind(&mgr, url, ev_handler);
+	mg_mgr_init(&mgr, NULL);
+	mg_bind(&mgr, url, ev_handler);
 	connection_clbk = clbk;
 	return true;
 }
 
 void connection_term(void)
 {
-	ns_mgr_free(&mgr);
+	mg_mgr_free(&mgr);
 }
 
 void connection_poll(int ms)
 {
-	ns_mgr_poll(&mgr, ms);
+	mg_mgr_poll(&mgr, ms);
 }
 
 
