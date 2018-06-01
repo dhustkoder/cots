@@ -1,7 +1,7 @@
 
 INCLUDES=-I../fossa
 CFLAGS=-std=c11 -Wall -Wextra -O0 -g -fsanitize=address $(INCLUDES)
-LDFLAGS=
+LDFLAGS=-lgmp
 
 SRC=src/%.c
 OBJS=$(patsubst src/%.c, objs/%.o, $(wildcard src/*.c))
