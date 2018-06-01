@@ -6,13 +6,13 @@
 
 
 static struct mg_mgr mgr;
-static const char* const url = "tcp://localhost:7171";
+static const char* const login_url = "tcp://localhost:7171";
+static const char* const game_url = "udp://localhost:7272";
 void(*login_protocol_clbk)(struct netmsg netmsg);
 
-static void login_protocol_ev_handler(struct mg_connection* const nc, int ev, void* const p)
+static void ev_handler(struct mg_connection* const nc, int ev, void* p, void* const url)
 {
 	((void)p);
-
 	switch (ev) {
 	case MG_EV_RECV: {
 		log_info("MG RECV EV");
@@ -22,7 +22,8 @@ static void login_protocol_ev_handler(struct mg_connection* const nc, int ev, vo
 			.conn_info = nc
 		};
 
-		login_protocol_clbk(netmsg);
+		if (url == login_url)
+			login_protocol_clbk(netmsg);
 
 		break;
 	}
@@ -41,9 +42,10 @@ static void login_protocol_ev_handler(struct mg_connection* const nc, int ev, vo
 void connection_init(void(*login_protocol_callback)(struct netmsg netmsg))
 {
 	log_info("Initializing Connection System...");
-	log_info("Connection LoginProtocol url: %s", url);
+	log_info("Connection LoginProtocol url: %s", login_url);
+	log_info("Connection GameProtocol url: %s", game_url);
 	mg_mgr_init(&mgr, NULL);
-	mg_bind(&mgr, url, login_protocol_ev_handler);
+	mg_bind(&mgr, login_url, ev_handler, (void*)login_url);
 	login_protocol_clbk = login_protocol_callback;
 }
 

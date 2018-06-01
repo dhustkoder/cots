@@ -1,7 +1,7 @@
 
 INCLUDES=-Iextern -Iextern/mongoose 
 CFLAGS=-std=c11 -Wall -Wextra -O0 -g -fsanitize=address $(INCLUDES) \
-       -DLOG_USE_COLOR -DCOTS_DEBUG
+       -DMG_ENABLE_CALLBACK_USERDATA -DLOG_USE_COLOR -DCOTS_DEBUG
 LDFLAGS=-lgmp
 
 SRC=$(wildcard src/*.c) \
