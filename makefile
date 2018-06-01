@@ -1,21 +1,22 @@
 
-INCLUDES=-I../fossa
+INCLUDES=-Iextern/mongoose
 CFLAGS=-std=c11 -Wall -Wextra -O0 -g -fsanitize=address $(INCLUDES)
 LDFLAGS=-lgmp
 
-SRC=src/%.c
-OBJS=$(patsubst src/%.c, objs/%.o, $(wildcard src/*.c))
+SRC=$(wildcard src/*.c) \
+    $(wildcard extern/mongoose/*.c)
+OBJS=$(SRC:.c=.o)
 
 all: cots
 
 cots: $(OBJS)
-	$(CC) $(CFLAGS) ../fossa/*.c $^ -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 objs/%.o: $(SRC)
-	@mkdir -p objs
-	$(CC) $(CFLAGS) -MP -MD -c $< -o $@
+	@mkdir -p $(shell dirname $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 -include $(shell ls objs/*.d 2>/dev/null)
 
 clean:
-	rm -rf objs
+	rm -rf $(OBJS)
