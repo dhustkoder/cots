@@ -60,7 +60,6 @@ void connection_poll(int ms)
 void connection_get_ip_addr(void* conn_info, char buffer[COTS_IP_ADDR_BUFFER_SIZE])
 {
 	int sz = mg_conn_addr_to_str(conn_info, buffer, COTS_IP_ADDR_BUFFER_SIZE, MG_SOCK_STRINGIFY_IP|MG_SOCK_STRINGIFY_REMOTE);
-	log_info("written: %d", sz);
 	buffer[sz] = '\0';
 }
 

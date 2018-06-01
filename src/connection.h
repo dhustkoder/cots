@@ -10,7 +10,7 @@ struct netmsg {
 };
 
 
-#define COTS_IP_ADDR_BUFFER_SIZE  (64)
+#define COTS_IP_ADDR_BUFFER_SIZE  (32)
 
 /* protocol opcodes */
 #define COTS_OPCODE_ENTER_ACCOUNT ((uint8_t)1)
