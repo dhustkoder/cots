@@ -25,7 +25,7 @@ objs/%.o: %.c
 	$(CC) $(CFLAGS) -MP -MD -c $< -o $@
 
 
--include $(shell ls objs/*.d 2>/dev/null)
+-include $(shell find objs/ -name '*.d' 2>/dev/null)
 
 
 clean:
