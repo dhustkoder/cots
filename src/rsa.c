@@ -35,7 +35,7 @@ void rsa_init(void)
 
 void rsa_term(void)
 {
-
+	log_info("Terminating RSA...");
 }
 
 void rsa_decrypt(uint8_t buffer[128])

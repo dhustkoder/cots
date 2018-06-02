@@ -44,8 +44,8 @@ static void ev_handler(struct mg_connection* const nc, int ev, void* p, void* co
 void connection_init(void(*login_protocol_callback)(struct netmsg netmsg))
 {
 	log_info("Initializing Connection System...");
-	log_info("Connection LoginProtocol url: %s", login_url);
-	log_info("Connection GameProtocol url: %s", game_url);
+	log_info("Connection Login Protocol url: %s", login_url);
+	log_info("Connection Game Protocol url: %s", game_url);
 	mg_mgr_init(&mgr, NULL);
 	mg_bind(&mgr, login_url, ev_handler, (void*)login_url);
 	login_protocol_clbk = login_protocol_callback;
@@ -53,6 +53,7 @@ void connection_init(void(*login_protocol_callback)(struct netmsg netmsg))
 
 void connection_term(void)
 {
+	log_info("Terminating Connection System...");
 	mg_mgr_free(&mgr);
 }
 

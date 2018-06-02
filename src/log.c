@@ -10,7 +10,7 @@ void log_init(void)
 
 void log_term(void)
 {
-
+	log_info("Terminating Logging...");
 }
 
 

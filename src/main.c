@@ -2,11 +2,20 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 #include "log.h"
 #include "rsa.h"
 #include "memory.h"
 #include "connection.h"
 
+
+static bool signal_recv = false;
+
+static void signal_handler(int sig)
+{
+	log_info("Received signal: %d", sig);
+	signal_recv = true;
+}
 
 static void enter_account(struct netmsg netmsg)
 {
@@ -102,8 +111,10 @@ int main(void)
 	log_init();
 	rsa_init();
 	connection_init(login_protocol_handler);
+	signal(SIGINT, signal_handler);
+	signal(SIGTERM, signal_handler);
 	
-	for (;;) {
+	while (!signal_recv) {
 		connection_poll(16000);
 	}
 
