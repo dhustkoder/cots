@@ -15,7 +15,7 @@ struct netmsg {
 /* protocol opcodes */
 #define COTS_OPCODE_ENTER_ACCOUNT ((uint8_t)1)
 
-void connection_init(void(*clbk)(struct netmsg netmsg));
+void connection_init(void(*login_protocol_callback)(struct netmsg netmsg));
 void connection_term(void);
 void connection_poll(int ms);
 void connection_get_ip_addr(void* conn_info, char buffer[COTS_IP_ADDR_BUFFER_SIZE]);
