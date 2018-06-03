@@ -21,6 +21,23 @@ static void enter_account(struct conn_info* const ci)
 {
 	rsa_decrypt(ci->input_msg.buf + 19);
 
+
+	const uint32_t xtea_key[4] = {
+		memread_u32(ci->input_msg.buf + 21),
+		memread_u32(ci->input_msg.buf + 25),
+		memread_u32(ci->input_msg.buf + 29),
+		memread_u32(ci->input_msg.buf + 33)
+	};
+
+
+	log_info("XTEA KEY RECEIVED: \n%"
+	         "[0] = %" PRIu32 "\n"
+	         "[1] = %" PRIu32 "\n"
+	         "[2] = %" PRIu32 "\n"
+	         "[3] = %" PRIu32 "\n",
+	         xtea_key[0], xtea_key[1], xtea_key[2], xtea_key[3]); 
+
+
 	const uint32_t account_number = memread_u32(ci->input_msg.buf + 36);
 
 	const uint16_t account_password_len = memread_u16(ci->input_msg.buf + 40);
