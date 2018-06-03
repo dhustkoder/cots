@@ -5,6 +5,7 @@
 #include <signal.h>
 #include "log.h"
 #include "rsa.h"
+#include "xtea.h"
 #include "memory.h"
 #include "connection.h"
 
@@ -23,18 +24,18 @@ static void enter_account(struct conn_info* const ci)
 
 
 	const uint32_t xtea_key[4] = {
-		memread_u32(ci->input_msg.buf + 21),
-		memread_u32(ci->input_msg.buf + 25),
-		memread_u32(ci->input_msg.buf + 29),
-		memread_u32(ci->input_msg.buf + 33)
+		memread_u32(ci->input_msg.buf + 20),
+		memread_u32(ci->input_msg.buf + 24),
+		memread_u32(ci->input_msg.buf + 28),
+		memread_u32(ci->input_msg.buf + 32)
 	};
 
 
-	log_info("XTEA KEY RECEIVED: \n%"
-	         "[0] = %" PRIu32 "\n"
-	         "[1] = %" PRIu32 "\n"
-	         "[2] = %" PRIu32 "\n"
-	         "[3] = %" PRIu32 "\n",
+	log_info("XTEA KEY RECEIVED: \n"
+	         "[0] = $%.4x\n"
+	         "[1] = $%.4x\n"
+	         "[2] = $%.4x\n"
+	         "[3] = $%.4x\n",
 	         xtea_key[0], xtea_key[1], xtea_key[2], xtea_key[3]); 
 
 
@@ -49,6 +50,55 @@ static void enter_account(struct conn_info* const ci)
 	          "Account Number: %" PRIu32 "\n"
 	          "Account Password: %s\n",
 	           account_number, account_password);
+
+
+	uint8_t out[] = {
+		0x28,
+		0x00,
+		0xd0,
+		0x8a,
+		0x7c,
+		0xec,
+		0xcc,
+		0x40,
+		0x78,
+		0x40,
+		0xdb,
+		0x78,
+		0x4e,
+		0x2f,
+		0x76,
+		0x2c,
+		0xff,
+		0x36,
+		0x3f,
+		0x8f,
+		0xff,
+		0x62,
+		0x33,
+		0x8b,
+		0xc4,
+		0xca,
+		0x3b,
+		0xf0,
+		0x34,
+		0x39,
+		0x04,
+		0x1f,
+		0x4f,
+		0x19,
+		0x3a,
+		0x3e,
+		0x68,
+		0x54,
+		0xe6,
+		0x83,
+		0x3b,
+		0x0b
+	};
+
+	memcpy(ci->output_msg.buf, out, sizeof(out));
+	ci->output_msg.len = sizeof(out);
 
 }
 

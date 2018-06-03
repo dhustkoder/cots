@@ -22,7 +22,7 @@ static void ev_handler(struct mg_connection* const nc,
 
 		log_info("MG RECV EV");
 
-		uint8_t output_buffer[148];
+		uint8_t output_buffer[256];
 
 		struct conn_info ci = {
 
