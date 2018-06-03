@@ -25,6 +25,26 @@ static inline uint32_t memread_u32(const void* const ptr)
 	return r;
 }
 
+static inline void memwrite_u8(void* const ptr, const uint8_t data)
+{
+	*((uint8_t*)ptr) = data;
+}
+
+static inline void memwrite_u16(void* const ptr, const uint16_t data)
+{
+	uint8_t* const m = ptr;
+	*m = data&0x00FF;
+	*(m + 1) = (data&0xFF00)>>8;
+}
+
+static inline void memwrite_u32(void* const ptr, const uint32_t data)
+{
+	uint8_t* const m = ptr;
+	*m = data&0x00FF;
+	*(m + 1) = (data&0xFF00)>>8;
+	*(m + 2) = (data&0xFF0000)>>16;
+	*(m + 3) = (data&0xFF000000)>>24;
+}
 
 
 #endif

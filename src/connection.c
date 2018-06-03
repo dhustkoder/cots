@@ -11,24 +11,33 @@ static const char* const game_url = "udp://localhost:7272";
 connection_callback_t login_protocol_clbk;
 
 
-static void ev_handler(struct mg_connection* const nc, int ev, void* p, void* const url)
+static void ev_handler(struct mg_connection* const nc,
+                       const int ev, void* const p,
+                       void* const url)
 {
 	((void)p);
+
 	switch (ev) {
 	case MG_EV_RECV: {
 
 		log_info("MG RECV EV");
 
+		uint8_t output_buffer[148];
+
 		struct conn_info ci = {
+
 			.input_msg = {
-				.len = memread_u16(nc->recv_mbuf.buf),
-				.buf = (uint8_t*) nc->recv_mbuf.buf + 2
+				.len = nc->recv_mbuf.len,
+				.buf = (uint8_t*)nc->recv_mbuf.buf,
 			},
+
 			.output_msg = {
 				.len = 0,
-				.buf = NULL
+				.buf = output_buffer
 			},
+
 			.internal = nc
+
 		};
 
 		if (url == login_url)
@@ -38,7 +47,6 @@ static void ev_handler(struct mg_connection* const nc, int ev, void* p, void* co
 			mg_send(ci.internal, ci.output_msg.buf, ci.output_msg.len);
 
 		mbuf_remove(&nc->recv_mbuf, nc->recv_mbuf.len);
-
 		break;
 	}
 	
@@ -69,7 +77,7 @@ void connection_term(void)
 	mg_mgr_free(&mgr);
 }
 
-void connection_poll(int ms)
+void connection_poll(const int ms)
 {
 	mg_mgr_poll(&mgr, ms);
 }
@@ -81,4 +89,5 @@ void connection_get_ip_addr(struct conn_info* const ci, char buffer[COTS_IP_ADDR
 	                             MG_SOCK_STRINGIFY_IP|MG_SOCK_STRINGIFY_REMOTE);
 	buffer[sz] = '\0';
 }
+
 

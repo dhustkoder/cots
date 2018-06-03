@@ -1,7 +1,9 @@
 
 INCLUDES=-Iextern -Iextern/mongoose 
 CFLAGS=-std=c11 -Wall -Wextra -O0 -g -fsanitize=address $(INCLUDES) \
-       -DMG_ENABLE_CALLBACK_USERDATA -DLOG_USE_COLOR -DCOTS_DEBUG
+       -DMG_ENABLE_CALLBACK_USERDATA -DMG_ENABLE_THREADS \
+       -DLOG_USE_COLOR -DCOTS_DEBUG
+       
 LDFLAGS=-lgmp
 
 
