@@ -8,7 +8,7 @@
 
 
 static struct mg_mgr mgr;
-static const char* const login_url = "tcp://localhost:7171";
+static const char* const login_url = "tcp://192.168.0.104:7171";
 static const char* const game_url = "udp://localhost:7272";
 connection_callback_t login_protocol_clbk;
 
@@ -25,6 +25,7 @@ static void ev_handler(struct mg_connection* const nc,
 		log_info("MG RECV EV");
 
 		uint8_t output_buffer[256];
+		memset(output_buffer, 0, sizeof(output_buffer));
 
 		struct conn_info ci = {
 
@@ -48,20 +49,25 @@ static void ev_handler(struct mg_connection* const nc,
 		}
 
 		if (ci.out_nm.len > 0) {
+			const uint16_t header_size = 2;
+			const uint16_t encrypted_header_size = 2;
+			const uint16_t msg_size = ci.out_nm.len;
+			uint16_t body_size = msg_size + encrypted_header_size;
 
-			ci.out_nm.len += 2;
-			
-			if ((ci.out_nm.len % 8) != 0)
-				ci.out_nm.len += 8 - (ci.out_nm.len % 8);
+			if ((body_size % 8) != 0)
+				body_size += 8 - (body_size % 8);
 
-			memwrite_u16(ci.out_nm.buf - 2, ci.out_nm.len - 2);
+			ci.out_nm.len = body_size + header_size;
 
-			xtea_encrypt(ci.xtea_key, ci.out_nm.buf - 2, ci.out_nm.len);
+			log_debug("sending message encrypted header: %" PRIu16, msg_size);
+			memwrite_u16(ci.out_nm.buf - 2, msg_size);
 
-			memwrite_u16(ci.out_nm.buf - 4, ci.out_nm.len);
+			xtea_encrypt(ci.xtea_key, ci.out_nm.buf - 2, body_size);
 
-			ci.out_nm.len += 2;
+			log_debug("sending message header: %" PRIu16, body_size);
+			memwrite_u16(ci.out_nm.buf - 4, body_size);
 
+			log_debug("sending message final length: %" PRIu16, ci.out_nm.len);
 			mg_send(ci.internal, ci.out_nm.buf - 4, ci.out_nm.len);
 
 		}

@@ -46,7 +46,7 @@ static void enter_account(struct conn_info* const ci)
 	          "Account Password: %s\n",
 	           account_number, account_password);
 
-	const char* const test_msg = "Server response: closing connection.";
+	const char* const test_msg = "Server Response: In Maintenance.";
 	const uint16_t test_msg_len = strlen(test_msg);
 	memwrite_u8(ci->out_nm.buf, 0x0A);
 	memwrite_u16(ci->out_nm.buf + 1, test_msg_len);
