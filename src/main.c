@@ -51,15 +51,17 @@ static void enter_account(struct conn_info* const ci)
 	          "Account Password: %s\n",
 	           account_number, account_password);
 
-	const char* const test_msg = "You must enter your account number.";
+	const char* const test_msg = "Server response: closing connection.";
 	const uint16_t test_msg_len = strlen(test_msg);
 	memwrite_u8(ci->output_msg.buf + 2, 0x0A);
 	memwrite_u16(ci->output_msg.buf + 3, test_msg_len);
 	memcpy(ci->output_msg.buf + 5, test_msg, test_msg_len);
 	uint16_t output_len = 5 + test_msg_len;
+	
 	if ((output_len % 8) != 0) {
 		output_len += 8 - (output_len % 8);
 	}
+
 	memwrite_u16(ci->output_msg.buf, output_len - 2);
 	ci->output_msg.len = output_len;
 
@@ -75,53 +77,6 @@ static void enter_account(struct conn_info* const ci)
 		printf("0x%.2x\n", ci->output_msg.buf[i]);
 	}
 
-	/*
-	uint8_t out[] = {
-		0xd0,
-		0x8a,
-		0x7c,
-		0xec,
-		0xcc,
-		0x40,
-		0x78,
-		0x40,
-		0xdb,
-		0x78,
-		0x4e,
-		0x2f,
-		0x76,
-		0x2c,
-		0xff,
-		0x36,
-		0x3f,
-		0x8f,
-		0xff,
-		0x62,
-		0x33,
-		0x8b,
-		0xc4,
-		0xca,
-		0x3b,
-		0xf0,
-		0x34,
-		0x39,
-		0x04,
-		0x1f,
-		0x4f,
-		0x19,
-		0x3a,
-		0x3e,
-		0x68,
-		0x54,
-		0xe6,
-		0x83,
-		0x3b,
-		0x0b
-	};
-
-	memcpy(ci->output_msg.buf, out, sizeof(out));
-	ci->output_msg.len = sizeof(out);
-	*/
 }
 
 static void login_protocol_handler(struct conn_info* const ci)

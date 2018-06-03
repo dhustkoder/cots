@@ -1,9 +1,10 @@
 #include "xtea.h"
 
 
-void xtea_encrypt(const uint32_t key[4], uint8_t* const buffer, const uint16_t len)
+void xtea_encrypt(const uint32_t key[4], uint8_t* const data, const uint16_t len)
 {
 	const uint32_t* const k = key;
+	uint32_t* const buffer = (uint32_t*) data;
 
 	int read_pos = 0;
 
@@ -23,9 +24,10 @@ void xtea_encrypt(const uint32_t key[4], uint8_t* const buffer, const uint16_t l
 
 }
 
-void xtea_decrypt(const uint32_t key[4], uint8_t* const buffer, const uint16_t len)
+void xtea_decrypt(const uint32_t key[4], uint8_t* const data, const uint16_t len)
 {
 	const uint32_t* const k = key;
+	uint32_t* const buffer = (uint32_t*) data;
 	int read_pos = 0;
 	
 	while (read_pos < len / 4) {
