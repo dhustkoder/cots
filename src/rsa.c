@@ -56,10 +56,12 @@ void rsa_decrypt(uint8_t buffer[128])
 	mpz_sub(u2, v2, v1);
 	mpz_mul(tmp, u2, u);
 	mpz_mod(u2, tmp, q);
-	if(mpz_cmp_si(u2, 0) < 0){
+
+	if (mpz_cmp_si(u2, 0) < 0) {
 		mpz_add(tmp, u2, q);
 		mpz_set(u2, tmp);
 	}
+
 	mpz_mul(tmp, u2, p);
 	mpz_set_ui(c, 0);
 	mpz_add(c, v1, tmp);
