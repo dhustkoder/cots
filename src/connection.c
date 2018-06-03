@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include "mongoose.h"
 #include "log.h"
+#include "rsa.h"
+#include "xtea.h"
 #include "memory.h"
 #include "connection.h"
 
@@ -26,27 +28,42 @@ static void ev_handler(struct mg_connection* const nc,
 
 		struct conn_info ci = {
 
-			.input_msg = {
+			.in_nm = {
 				.len = memread_u16(nc->recv_mbuf.buf),
 				.buf = (uint8_t*)nc->recv_mbuf.buf + 2,
 			},
 
-			.output_msg = {
+			.out_nm = {
 				.len = 0,
-				.buf = output_buffer + 2,
+				.buf = output_buffer + 4,
 			},
 
 			.internal = nc
 
 		};
 
-		if (url == login_url)
+		if (url == login_url) {
+			rsa_decrypt(ci.in_nm.buf + 17);
 			login_protocol_clbk(&ci);
+		}
 
-		if (ci.output_msg.len > 0) {
-			memwrite_u16(ci.output_msg.buf - 2, ci.output_msg.len);
-			ci.output_msg.len += 2;
-			mg_send(ci.internal, ci.output_msg.buf - 2, ci.output_msg.len);
+		if (ci.out_nm.len > 0) {
+
+			ci.out_nm.len += 2;
+			
+			if ((ci.out_nm.len % 8) != 0)
+				ci.out_nm.len += 8 - (ci.out_nm.len % 8);
+
+			memwrite_u16(ci.out_nm.buf - 2, ci.out_nm.len - 2);
+
+			xtea_encrypt(ci.xtea_key, ci.out_nm.buf - 2, ci.out_nm.len);
+
+			memwrite_u16(ci.out_nm.buf - 4, ci.out_nm.len);
+
+			ci.out_nm.len += 2;
+
+			mg_send(ci.internal, ci.out_nm.buf - 4, ci.out_nm.len);
+
 		}
 
 		mbuf_remove(&nc->recv_mbuf, nc->recv_mbuf.len);

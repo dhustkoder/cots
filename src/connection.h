@@ -5,13 +5,14 @@
 
 struct netmsg {
 	uint16_t len;
-	uint8_t* buf;
+	uint8_t* const buf;
 };
 
 
 struct conn_info {
-	struct netmsg input_msg;
-	struct netmsg output_msg;
+	struct netmsg in_nm;
+	struct netmsg out_nm;
+	uint32_t xtea_key[4];
 	void* const internal;
 };
 
