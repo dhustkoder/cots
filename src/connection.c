@@ -22,7 +22,7 @@ static void ev_handler(struct mg_connection* const nc,
 	switch (ev) {
 	case MG_EV_RECV: {
 
-		log_info("MG RECV EV");
+		log_debug("MG_RECV_PACKET size: %zu", nc->recv_mbuf.len);
 
 		uint8_t output_buffer[256];
 		memset(output_buffer, 0, sizeof(output_buffer));
@@ -77,11 +77,11 @@ static void ev_handler(struct mg_connection* const nc,
 	}
 	
 	case MG_EV_SEND:
-		log_info("MG SEND EV");
+		log_debug("MG_SEND_PACKET");
 		break;
 
 	default:
-		log_warn("MG EV UNKNOWN %d", ev);
+		log_warn("MG_EV_UNKNOWN %d", ev);
 		break;
 	}
 }
