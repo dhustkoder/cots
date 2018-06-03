@@ -27,13 +27,13 @@ static void ev_handler(struct mg_connection* const nc,
 		struct conn_info ci = {
 
 			.input_msg = {
-				.len = nc->recv_mbuf.len,
-				.buf = (uint8_t*)nc->recv_mbuf.buf,
+				.len = memread_u16(nc->recv_mbuf.buf),
+				.buf = (uint8_t*)nc->recv_mbuf.buf + 2,
 			},
 
 			.output_msg = {
 				.len = 0,
-				.buf = output_buffer
+				.buf = output_buffer + 2,
 			},
 
 			.internal = nc
@@ -43,8 +43,11 @@ static void ev_handler(struct mg_connection* const nc,
 		if (url == login_url)
 			login_protocol_clbk(&ci);
 
-		if (ci.output_msg.len > 0)
-			mg_send(ci.internal, ci.output_msg.buf, ci.output_msg.len);
+		if (ci.output_msg.len > 0) {
+			memwrite_u16(ci.output_msg.buf - 2, ci.output_msg.len);
+			ci.output_msg.len += 2;
+			mg_send(ci.internal, ci.output_msg.buf - 2, ci.output_msg.len);
+		}
 
 		mbuf_remove(&nc->recv_mbuf, nc->recv_mbuf.len);
 		break;
