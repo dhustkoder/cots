@@ -19,6 +19,8 @@ static void signal_handler(int sig)
 
 static void opcode_enter_account(struct conn_info* const ci)
 {
+	rsa_decrypt(ci->in_nm.buf + 17);
+
 	ci->xtea_key[0] = memread_u32(ci->in_nm.buf + 18);
 	ci->xtea_key[1] = memread_u32(ci->in_nm.buf + 22);
 	ci->xtea_key[2] = memread_u32(ci->in_nm.buf + 26);

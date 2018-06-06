@@ -51,7 +51,6 @@ static void ev_handler(struct mg_connection* const nc,
 		};
 
 		if (url == login_url) {
-			rsa_decrypt(ci.in_nm.buf + 17);
 			login_protocol_clbk(&ci);
 		}
 
