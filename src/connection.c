@@ -14,13 +14,20 @@ connection_callback_t login_protocol_clbk;
 
 
 static void ev_handler(struct mg_connection* const nc,
-                       const int ev, void* const p,
+                       const int ev, void* const evp,
                        void* const url)
 {
-	((void)p);
+	((void)evp);
 
 	switch (ev) {
-	case MG_EV_RECV: {
+	case MG_EV_POLL: // Sent to each connection on each mg_mgr_poll() call
+		break;
+	case MG_EV_ACCEPT: // New connection accepted. union socket_address *
+		break;
+	case MG_EV_CONNECT: // connect() succeeded or failed. int *  
+		break;
+
+	case MG_EV_RECV: { // Data has been received. int *num_bytes
 
 		log_debug("MG_RECV_PACKET size: %zu", nc->recv_mbuf.len);
 
@@ -76,8 +83,13 @@ static void ev_handler(struct mg_connection* const nc,
 		break;
 	}
 	
-	case MG_EV_SEND:
-		log_debug("MG_SEND_PACKET");
+	case MG_EV_SEND: // Data has been written to a socket. int *num_bytes 
+		break;
+
+	case MG_EV_CLOSE: // Connection is closed. NULL 
+		break;
+
+	case MG_EV_TIMER: // now >= conn->ev_timer_time. double * 
 		break;
 
 	default:
