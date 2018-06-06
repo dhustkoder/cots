@@ -48,11 +48,11 @@ static void opcode_enter_account(struct conn_info* const ci)
 
 	log_debug("Login attempt:\n"
 	          "Client OS: %" PRIu16 "\n"
-		  "Client Version: %" PRIu16 "\n"
+	          "Client Version: %" PRIu16 "\n"
 	          "Account Number: %" PRIu32 "\n"
 	          "Account Password: %s\n",
-		   client_os, client_version,
-	           account_number, account_password);
+	          client_os, client_version,
+	          account_number, account_password);
 
 	const char* const test_msg = "Server Response: In Maintenance.";
 	const uint16_t test_msg_len = strlen(test_msg);
