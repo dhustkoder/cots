@@ -12,6 +12,7 @@
 
 static atomic_bool signal_recv = false;
 
+
 static void signal_handler(int sig)
 {
 	log_info("Received signal: %d", sig);
