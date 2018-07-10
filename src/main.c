@@ -3,18 +3,19 @@
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
+#include <stdatomic.h>
 #include "log.h"
 #include "rsa.h"
 #include "memory.h"
 #include "connection.h"
 
 
-static bool signal_recv = false;
+static atomic_bool signal_recv = false;
 
 static void signal_handler(int sig)
 {
 	log_info("Received signal: %d", sig);
-	signal_recv = true;
+	atomic_store(&signal_recv, true);
 }
 
 static void opcode_enter_account(struct conn_info* const ci)
@@ -86,10 +87,11 @@ int main(void)
 	log_init();
 	rsa_init();
 	connection_init(login_protocol_handler);
+	atomic_init(&signal_recv, false);
 	signal(SIGINT, signal_handler);
 	signal(SIGTERM, signal_handler);
 	
-	while (!signal_recv) {
+	while (!atomic_load(&signal_recv)) {
 		connection_poll(16000);
 	}
 
