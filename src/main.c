@@ -83,11 +83,23 @@ static void login_protocol_handler(struct conn_info* const ci)
 
 
 
-int main(void) 
+int main(const int argc, const char* argv[]) 
 {
+	if (argc < 3) {
+		fprintf(stderr, "Usage: %s [login protocol address] [game protocol address]\n"
+		                "Example: %s \"tcp://192.168.0.1:7171\" \"udp://192.168.0.1:7172\"\n", argv[0], argv[0]);
+		return EXIT_FAILURE;
+	}
+	
 	log_init();
 	rsa_init();
-	connection_init(login_protocol_handler);
+	
+	if (!connection_init(login_protocol_handler, argv[1], argv[2])) {
+		rsa_term();
+		log_term();
+		return EXIT_FAILURE;
+	}
+
 	atomic_init(&signal_recv, false);
 	signal(SIGINT, signal_handler);
 	signal(SIGTERM, signal_handler);
@@ -99,6 +111,6 @@ int main(void)
 	connection_term();
 	rsa_term();
 	log_term();
-	return EXIT_SUCCESS;
+	return EXIT_SUCCESS;;
 }
 

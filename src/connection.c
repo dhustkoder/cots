@@ -8,14 +8,14 @@
 
 
 static struct mg_mgr mgr;
-static const char* const login_url = "tcp://192.168.0.104:7171";
-static const char* const game_url = "udp://localhost:7272";
+static char current_login_protocol_addr[40];
+static char current_game_protocol_addr[40];
 connection_callback_t login_protocol_clbk;
 
 
 static void ev_handler(struct mg_connection* const nc,
                        const int ev, void* const evp,
-                       void* const url)
+                       void* const addr)
 {
 	((void)evp);
 
@@ -50,7 +50,7 @@ static void ev_handler(struct mg_connection* const nc,
 
 		};
 
-		if (url == login_url) {
+		if (addr == current_login_protocol_addr) {
 			login_protocol_clbk(&ci);
 		}
 
@@ -98,14 +98,26 @@ static void ev_handler(struct mg_connection* const nc,
 }
 
 
-void connection_init(connection_callback_t login_protocol_callback)
+bool connection_init(connection_callback_t login_protocol_callback,
+                     const char* const login_protocol_addr, 
+                     const char* const game_protocol_addr)
 {
 	log_info("Initializing Connection System...");
-	log_info("Connection Login Protocol url: %s", login_url);
-	log_info("Connection Game Protocol url: %s", game_url);
+	log_info("Connection Login Protocol addr: %s", login_protocol_addr);
+	log_info("Connection Game Protocol addr: %s", game_protocol_addr);
+
+	strcpy(current_login_protocol_addr, login_protocol_addr);
+	strcpy(current_game_protocol_addr, game_protocol_addr);
+
 	mg_mgr_init(&mgr, NULL);
-	mg_bind(&mgr, login_url, ev_handler, (void*)login_url);
+	if (mg_bind(&mgr, current_login_protocol_addr, ev_handler, (void*)current_login_protocol_addr) == NULL) {
+		log_fatal("Failed to initialize Connection.");
+		mg_mgr_free(&mgr);
+		return false;
+	}
+
 	login_protocol_clbk = login_protocol_callback;
+	return true;
 }
 
 void connection_term(void)
