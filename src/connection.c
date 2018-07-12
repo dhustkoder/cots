@@ -8,8 +8,8 @@
 
 
 static struct mg_mgr mgr;
-static char current_login_protocol_addr[40];
-static char current_game_protocol_addr[40];
+static char current_login_protocol_addr[COTS_IP_ADDR_BUFFER_SIZE];
+static char current_game_protocol_addr[COTS_IP_ADDR_BUFFER_SIZE];
 connection_callback_t login_protocol_clbk;
 
 
