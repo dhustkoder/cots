@@ -11,7 +11,7 @@
 static atomic_bool signal_recv = false;
 
 
-static void signal_handler(int sig)
+static void signal_handler(const int sig)
 {
 	log_info("Received signal: %d", sig);
 	atomic_store(&signal_recv, true);
