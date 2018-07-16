@@ -8,6 +8,7 @@
 #include "game_protocol.h"
 #include "login_protocol.h"
 
+
 static atomic_bool signal_recv = false;
 
 
