@@ -1,6 +1,6 @@
 #ifndef COTS_MEMORY_H_
 #define COTS_MEMORY_H_
-
+#include <stdint.h>
 
 static inline uint8_t memread_u8(const void* const ptr)
 {

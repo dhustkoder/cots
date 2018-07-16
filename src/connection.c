@@ -8,14 +8,15 @@
 
 
 static struct mg_mgr mgr;
-static char current_login_protocol_addr[COTS_IP_ADDR_BUFFER_SIZE];
-static char current_game_protocol_addr[COTS_IP_ADDR_BUFFER_SIZE];
-connection_callback_t login_protocol_clbk;
+static char login_prot_addr[COTS_IP_ADDR_BUFFER_SIZE];
+static char game_prot_addr[COTS_IP_ADDR_BUFFER_SIZE];
+connection_callback_t login_prot_clbk;
+connection_callback_t game_prot_clbk;
 
 
 static void ev_handler(struct mg_connection* const nc,
                        const int ev, void* const evp,
-                       void* const addr)
+                       void* const requested_prot_addr)
 {
 	((void)evp);
 
@@ -50,8 +51,15 @@ static void ev_handler(struct mg_connection* const nc,
 
 		};
 
-		if (addr == current_login_protocol_addr) {
-			login_protocol_clbk(&ci);
+		char ip_addr[COTS_IP_ADDR_BUFFER_SIZE];
+		connection_get_ip_addr(&ci, ip_addr);
+
+		if (requested_prot_addr == login_prot_addr) {
+			log_debug("New Request From: %s to login protocol", ip_addr);
+			login_prot_clbk(&ci);
+		} else {
+			log_debug("New Request From: %s to game protocol", ip_addr);
+			game_prot_clbk(&ci);
 		}
 
 		if (ci.out_nm.len > 0) {
@@ -99,24 +107,28 @@ static void ev_handler(struct mg_connection* const nc,
 
 
 bool connection_init(connection_callback_t login_protocol_callback,
-                     const char* const login_protocol_addr, 
-                     const char* const game_protocol_addr)
+                     connection_callback_t game_protocol_callback,
+                     const char* const login_protocol_address, 
+                     const char* const game_protocol_address)
 {
 	log_info("Initializing Connection System...");
-	log_info("Connection Login Protocol addr: %s", login_protocol_addr);
-	log_info("Connection Game Protocol addr: %s", game_protocol_addr);
+	log_info("Connection Login Protocol addr: %s", login_protocol_address);
+	log_info("Connection Game Protocol addr: %s", game_protocol_address);
 
-	strcpy(current_login_protocol_addr, login_protocol_addr);
-	strcpy(current_game_protocol_addr, game_protocol_addr);
+	strncpy(login_prot_addr, login_protocol_address, COTS_IP_ADDR_BUFFER_SIZE);
+	strncpy(game_prot_addr, game_protocol_address, COTS_IP_ADDR_BUFFER_SIZE);
 
 	mg_mgr_init(&mgr, NULL);
-	if (mg_bind(&mgr, current_login_protocol_addr, ev_handler, (void*)current_login_protocol_addr) == NULL) {
+	if (mg_bind(&mgr, login_prot_addr, ev_handler, (void*)login_prot_addr) == NULL ||
+	    mg_bind(&mgr, game_prot_addr, ev_handler, (void*)game_prot_addr) == NULL) {
 		log_fatal("Failed to initialize Connection.");
 		mg_mgr_free(&mgr);
 		return false;
 	}
 
-	login_protocol_clbk = login_protocol_callback;
+
+	login_prot_clbk = login_protocol_callback;
+	game_prot_clbk = game_protocol_callback;
 	return true;
 }
 
